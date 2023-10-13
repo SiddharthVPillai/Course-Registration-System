@@ -28,8 +28,8 @@ int validate(char id[],char pass[]){
 
 void addStudent(int);
 void viewStudent(int);
-void addFaculty();
-void viewFaculty();
+void addFaculty(int);
+void viewFaculty(int);
 void activateStudent();
 void blockStudent();
 void modifyStudent();
@@ -69,9 +69,9 @@ void admin(int cl){
             break;
             case 2: viewStudent(cl);
             break;
-            case 3: addFaculty();
+            case 3: addFaculty(cl);
             break;
-            case 4: viewFaculty();
+            case 4: viewFaculty(cl);
             break;
             case 5: activateStudent();
             break;
@@ -368,12 +368,227 @@ void viewStudent(int cl){
     read(cl,read_buffer,sizeof(read_buffer));
 }
 
-void addFaculty(){
+void addFaculty(int cl){
+    int bytes_read,bytes_written;
+    char read_buffer[1024],write_buffer[1024];
 
+    struct faculty f ,p;
+
+    int fd;
+    fd = open(FACULTY_DATA,O_RDONLY);    
+    if(fd == -1 && errno == ENOENT){
+        f.id = 1;
+    }
+    else if(fd == -1){
+        perror("Error opening data file");
+        return;
+    }
+    else{
+        int os =  lseek(fd , -sizeof(struct faculty),SEEK_END);
+        if(os == -1){
+            perror("Error seeking last faculty id");
+            return;
+        }
+
+        struct flock lock = {F_RDLCK,SEEK_SET,os,sizeof(struct faculty),getpid()};
+        int ls = fcntl(fd,F_SETLKW, &lock);
+        if(ls == -1){
+            perror("Error obtaining lock");
+            return;
+        }
+        
+        bytes_read = read(fd,&p,sizeof(struct faculty));
+        if(bytes_read == -1){
+            perror("Error reading from file");
+            return;
+        }
+
+        lock.l_type = F_UNLCK;
+        fcntl(fd,F_SETLK,&lock);
+        close(fd);
+        f.id = p.id+1;
+    }
+    
+    bytes_written = write(cl,"Enter faculty name: ",20);
+    if(bytes_written == -1){
+        perror("Error writing to client");
+        return;
+    }
+    bytes_read = read(cl,read_buffer,sizeof(read_buffer));
+    if(bytes_read == -1){
+        perror("Error reading from client");
+        return;
+    }
+    read_buffer[bytes_read] = '\0';
+    strcpy(f.name,read_buffer);
+
+    bytes_written = write(cl,"Enter Department: ",18);
+    if(bytes_written == -1){
+        perror("Error writing to client");
+        return;
+    }
+    bytes_read = read(cl,read_buffer,sizeof(read_buffer));
+    if(bytes_read == -1){
+        perror("Error reading from client");
+        return;
+    }
+    read_buffer[bytes_read] = '\0';
+    strcpy(f.dept,read_buffer);
+
+    bytes_written = write(cl,"Enter mail id: ",15);
+    if(bytes_written == -1){
+        perror("Error writing to client");
+        return;
+    }
+    bytes_read = read(cl,read_buffer,sizeof(read_buffer));
+    if(bytes_read == -1){
+        perror("Error reading from client");
+        return;
+    }
+    read_buffer[bytes_read] = '\0';
+    strcpy(f.mail,read_buffer);
+
+    bytes_written = write(cl,"Enter Designation: ",19);
+    if(bytes_written == -1){
+        perror("Error writing to client");
+        return;
+    }
+    bytes_read = read(cl,read_buffer,sizeof(read_buffer));
+    if(bytes_read == -1){
+        perror("Error reading from client");
+        return;
+    }
+    read_buffer[bytes_read] = '\0';
+    strcpy(f.designation,read_buffer);
+
+    bytes_written = write(cl,"Enter Address: ",15);
+    if(bytes_written == -1){
+        perror("Error writing to client");
+        return;
+    }
+    bytes_read = read(cl,read_buffer,sizeof(read_buffer));
+    if(bytes_read == -1){
+        perror("Error reading from client");
+        return;
+    }
+    read_buffer[bytes_read] = '\0';
+    strcpy(f.address,read_buffer);
+    
+    char login[10] = "iiitb";
+    char num[4];
+    tostring(num,f.id);
+    strcat(login,num);
+    strcpy(f.login,login);
+
+    strcpy(f.pass,DEFAULT_PASS);
+
+    fd = open(FACULTY_DATA,O_CREAT | O_APPEND | O_WRONLY, S_IRWXU);
+    if(fd == -1){
+        perror("Error opening file");
+        return;
+    }
+
+    bytes_written = write(fd,&f,sizeof(struct faculty));
+    if(bytes_written == -1){
+        perror("Error writing data");
+        return;
+    }
+    close(fd);
+
+    bzero(write_buffer,sizeof(write_buffer));
+    sprintf(write_buffer,"\n-------Faculty Successfully created-------\nName: %s\nLoginId: %s\nPassword: %s",f.name,f.login,f.pass);
+    strcat(write_buffer,"^");
+
+    bytes_written = write(cl,write_buffer,strlen(write_buffer));
+    if(bytes_written == -1){
+        perror("Error writing to client");
+        return;
+    }
+    read(cl,read_buffer,sizeof(read_buffer));
 }
 
-void viewFaculty(){
+void viewFaculty(int cl){
+    int bytes_read,bytes_written;
+    char read_buffer[1024],write_buffer[1024],temp[1024];
 
+    struct faculty f;
+    bytes_written = write(cl,"Enter Id no of faculty: ",24);
+    if(bytes_written == -1){
+        perror("Error sending data to client");
+        return;
+    }
+    bzero(read_buffer,sizeof(read_buffer));
+    bytes_read = read(cl,read_buffer,sizeof(read_buffer));
+
+    int fd;
+    fd = open(FACULTY_DATA,O_RDONLY);
+
+    struct flock lock = {F_RDLCK, SEEK_SET, 0, sizeof(struct faculty), getpid()};
+    int id = atoi(read_buffer);
+
+    if(fd == -1){
+        bzero(write_buffer, sizeof(write_buffer));
+        strcpy(write_buffer, INVALID_ID);
+        strcat(write_buffer, "^");
+        bytes_written = write(cl, write_buffer, strlen(write_buffer));
+        if (bytes_written == -1){
+            perror("Error sending message to client");
+            return;
+        }
+        bytes_read = read(cl, read_buffer, sizeof(read_buffer)); 
+        return;
+    }
+
+    int os = lseek(fd,(id-1)*sizeof(struct faculty),SEEK_SET);
+    if(errno == EINVAL){
+        bzero(write_buffer, sizeof(write_buffer));
+        strcpy(write_buffer, INVALID_ID);
+        strcat(write_buffer, "^");
+        bytes_written = write(cl, write_buffer, strlen(write_buffer));
+        if (bytes_written == -1)
+        {
+            perror("Error sending message to client");
+            return;
+        }
+        bytes_read = read(cl, read_buffer, sizeof(read_buffer)); 
+        return;
+    }
+    else if (os == -1){
+        perror("Error while seeking file");
+        return;
+    }
+
+    lock.l_start = os;
+    int status = fcntl(fd,F_SETLKW,&lock);
+    if(status == -1){
+        perror("Error getting lock");
+        return;
+    }
+
+    bytes_read = read(fd,&f,sizeof(struct faculty));
+    if(bytes_read == -1){
+        perror("Error reading from file");
+        return;
+    }
+
+    lock.l_type = F_UNLCK;
+    status = fcntl(fd,F_SETLK,&lock);
+    if(status == -1){
+        perror("Error releasing lock");
+        return;
+    }
+
+    bzero(write_buffer,sizeof(write_buffer));
+    sprintf(write_buffer,"-------Faculty Details-------\nName: %s\nDepartment: %s\nDesignation: %s\nE-mail: %s\nAddress: %s\nLogin id: %s",f.name,f.dept,f.designation,f.mail,f.address,f.login);
+    strcat(write_buffer,"^");
+
+    bytes_written = write(cl,write_buffer,strlen(write_buffer));
+    if(bytes_written == -1){
+        perror("Error sending to client");
+        return;
+    }
+
+    read(cl,read_buffer,sizeof(read_buffer));
 }
 
 void activateStudent(){

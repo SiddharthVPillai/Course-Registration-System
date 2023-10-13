@@ -1,6 +1,6 @@
 
-#define mainMenu "\t\t--------Welcome---------\n1.Admin\n2.Faculty\n3.Student\nEnter choice: "
-#define adminMenu "\t\t-------Welcome Admin---------\n1.Add Student\n2.View Student\n3.Add faculty\n4.View faculty details\n5.Activate Student\n6.Block Student\n7.Modify Student Details\n8.Modify Faculty Details\n9.Logout and exit"
+#define mainMenu "--------Welcome---------\n1.Admin\n2.Faculty\n3.Student\nEnter choice: "
+#define adminMenu "-------Welcome Admin---------\n1.Add Student\n2.View Student\n3.Add faculty\n4.View faculty details\n5.Activate Student\n6.Block Student\n7.Modify Student Details\n8.Modify Faculty Details\n9.Logout and exit"
 
 #define LOGIN_ID "Enter login id: "
 #define PASSWORD "Enter password: #"
@@ -12,6 +12,7 @@
 #define IM_STUDENT_DATA "./Data/IM_students"
 #define MT_STUDENT_DATA "./Data/MT_students"
 #define MS_STUDENT_DATA "./Data/MS_students"
+#define FACULTY_DATA "./Data/Faculty_data"
 
 #define INVALID_ID "Id doesnt exist"
 #define INVALID_COURSE "Invalid Course $"

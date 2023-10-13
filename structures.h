@@ -10,3 +10,14 @@ struct student{
     int blocked;
 };
 
+struct faculty{
+    char name[20];
+    char dept[10];
+    char designation[20];
+    char mail[20];
+    char address[40];
+    char login[10];
+    char pass[10];
+    int id;
+};
+
