@@ -13,8 +13,8 @@
 #define MT_STUDENT_DATA "./Data/MT_students"
 #define MS_STUDENT_DATA "./Data/MS_students"
 
-
+#define INVALID_ID "Id doesnt exist"
 #define INVALID_COURSE "Invalid Course $"
-
+#define INVALID_ROLL "Invalid Roll no $"
 //dafault password
 #define DEFAULT_PASS "pass123"

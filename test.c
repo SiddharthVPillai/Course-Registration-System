@@ -21,16 +21,7 @@ void tostring(char str[], int num)
     str[len] = '\0';
 }
 int main(){
-    char a[]="Hello",b[10];
-    char c[10];
-    int i=0;
-    for(;i<strlen(a);i++)
-        c[i] = a[i];
-    printf("%s",c);
-    tostring(b,1);
-    for(int j=0;j<strlen(b);j++){
-        c[i++] = b[j];
-    }
-    printf("\n%s",c);
+    char a[] = "MT102";
+    printf("%d",atoi(a+2));
     return 0;
 }
