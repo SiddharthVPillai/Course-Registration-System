@@ -7,6 +7,8 @@
 #include<unistd.h>
 #include "const.h"
 #include "admin.h"
+#include "faculty.h"
+#include "student.h"
 
 void connection(int cl){
     printf("Client connected to server\n");
@@ -28,8 +30,10 @@ void connection(int cl){
     switch(op){
         case 1: admin(cl);
                 break;
-        case 2:break;
-        case 3:break;
+        case 2: faculty(cl);
+                break;
+        case 3: student(cl);
+                break;
         default: write(cl,"Wrong option thank you :)",26);
     }
 }

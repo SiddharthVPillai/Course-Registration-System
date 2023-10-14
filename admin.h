@@ -33,7 +33,7 @@ void viewFaculty(int);
 void activateStudent(int);
 void blockStudent(int);
 void modifyStudent(int);
-void modifyFaculty();
+void modifyFaculty(int);
 
 void admin(int cl){
     char id[5],pass[5];
@@ -669,7 +669,7 @@ void activateStudent(int cl){
         return;
     }
     s.blocked = 0;
-    lseek(fd,0L,SEEK_SET);
+    lseek(fd,-1*sizeof(s),SEEK_CUR);
     bytes_written = write(fd,&s,sizeof(struct student));
     if(bytes_written == -1){
         perror("Error writing into file");
@@ -773,7 +773,7 @@ void blockStudent(int cl){
         return;
     }
     s.blocked = 1;
-    lseek(fd,0L,SEEK_SET);
+    lseek(fd,-1*sizeof(s),SEEK_CUR);
     bytes_written = write(fd,&s,sizeof(struct student));
     if(bytes_written == -1){
         perror("Error writing into file");
@@ -929,7 +929,7 @@ void modifyStudent(int cl){
     read_buffer[bytes_read] = '\0';
     strcpy(s.state,read_buffer);
 ////////////////////////////
-    lseek(fd,0L,SEEK_SET);
+    lseek(fd,-1*sizeof(s),SEEK_CUR);
     bytes_written = write(fd,&s,sizeof(struct student));
     if(bytes_written == -1){
         perror("Error writing into file");
@@ -1084,7 +1084,7 @@ void modifyFaculty(int cl){
     strcpy(f.address,read_buffer);
 
     ////////
-    lseek(fd,0L,SEEK_SET);
+    lseek(fd,-1*sizeof(f),SEEK_CUR);
     bytes_written = write(fd,&f,sizeof(struct faculty));
     if(bytes_written == -1){
         perror("Error writing into file");
